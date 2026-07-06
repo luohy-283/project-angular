@@ -1,59 +1,80 @@
-# ProjectAngular
+# Claim Management Admin Portal
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.27.
+Project thực hành Angular — khóa đào tạo 2 tuần.
 
-## Development server
+## Ngày 1 — Setup project
 
-To start a local development server, run:
+### Đã hoàn thành
 
-```bash
-ng serve
-```
+- Khởi tạo project Angular bằng Angular CLI
+- Bật TypeScript strict mode
+- Cài đặt Angular Material
+- Tạo cấu trúc thư mục: `core`, `shared`, `features`, `layouts`
+- Cấu hình ESLint và Prettier
+- Khởi tạo Git repository
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Công nghệ
 
-## Code scaffolding
+- Angular 19 (standalone components)
+- TypeScript strict mode
+- Angular Material
+- ESLint, Prettier
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Yêu cầu môi trường
 
-```bash
-ng generate component component-name
-```
+- Node.js 18 trở lên
+- npm 9 trở lên
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+## Cài đặt và chạy
 
 ```bash
-ng build
+npm install
+npm start
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Mở trình duyệt tại [http://localhost:4200](http://localhost:4200).
 
-## Running unit tests
+## Các lệnh hữu ích
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+| Lệnh | Mô tả |
+|------|-------|
+| `npm run build` | Build production |
+| `npm run lint` | Kiểm tra ESLint |
+| `npm run format` | Format code bằng Prettier |
+| `npm test` | Chạy unit test |
 
-```bash
-ng test
+## Cấu trúc source code
+
 ```
+project-angular
+├─ .angular
+├─ .editorconfig
+├─ .prettierignore
+├─ .prettierrc
+├─ angular.json
+├─ eslint.config.js
+├─ package-lock.json
+├─ package.json
+├─ public
+│  └─ favicon.ico
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ app.component.html
+│  │  ├─ app.component.scss
+│  │  ├─ app.component.spec.ts
+│  │  ├─ app.component.ts
+│  │  ├─ app.config.ts
+│  │  ├─ app.routes.ts
+│  │  ├─ core
+│  │  ├─ features
+│  │  ├─ layouts
+│  │  └─ shared
+│  ├─ index.html
+│  ├─ main.ts
+│  └─ styles.scss
+├─ tsconfig.app.json
+├─ tsconfig.json
+└─ tsconfig.spec.json
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
 ```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
