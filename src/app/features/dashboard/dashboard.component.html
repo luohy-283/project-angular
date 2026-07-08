@@ -1,0 +1,39 @@
+<app-page-title title="Dashboard Page"></app-page-title>
+
+@if (loading) {
+  <app-loading></app-loading>
+} @else if (error) {
+  <p class="error-state">Unable to load dashboard.</p>
+} @else if (summary) {
+  <div class="dashboard-grid">
+    <mat-card>
+      <mat-card-content>
+        <h3>Total Claims</h3>
+        <p>{{ summary.totalClaims }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <h3>Processing Claims</h3>
+        <p>{{ summary.processingClaims }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <h3>Approved Claims</h3>
+        <p>{{ summary.approvedClaims }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card>
+      <mat-card-content>
+        <h3>Total Approved Amount</h3>
+        <p>{{ summary.totalApprovedAmount }}</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+} @else {
+  <app-empty-state message="No dashboard data available."></app-empty-state>
+}

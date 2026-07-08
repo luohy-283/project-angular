@@ -1,0 +1,23 @@
+<app-page-title title="Claim Create Page"></app-page-title>
+
+@if (showMessage) {
+  <p class="hint">This placeholder page shows the claim create route.</p>
+}
+
+<div class="list">
+  @for (item of items; track item.id) {
+    <div class="item-row">
+      <span>{{ item.id }}</span>
+      <app-status-badge [status]="item.status"></app-status-badge>
+    </div>
+  }
+</div>
+
+@switch (status) {
+  @case ('draft') {
+    <p>Status: Draft</p>
+  }
+  @default {
+    <p>Status: Pending</p>
+  }
+}

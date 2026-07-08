@@ -1,0 +1,23 @@
+<app-page-title [title]="'Claim Edit Page - ID: ' + id"></app-page-title>
+
+@if (showMessage) {
+  <p class="hint">This placeholder shows the edit route for the selected claim.</p>
+}
+
+<div class="list">
+  @for (item of items; track item.id) {
+    <div class="item-row">
+      <span>{{ item.id }}</span>
+      <app-status-badge [status]="item.status"></app-status-badge>
+    </div>
+  }
+</div>
+
+@switch (status) {
+  @case ('pending') {
+    <p>Status: Pending</p>
+  }
+  @default {
+    <p>Status: Draft</p>
+  }
+}

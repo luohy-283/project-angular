@@ -1,0 +1,42 @@
+<app-page-title title="Claims Page"></app-page-title>
+
+@if (loading) {
+  <app-loading></app-loading>
+} @else if (error) {
+  <p class="error-state">Unable to load claims.</p>
+} @else if (claims.length === 0) {
+  <app-empty-state message="No claims available."></app-empty-state>
+} @else {
+  <div class="table-wrapper">
+    <table class="claims-table">
+      <thead>
+        <tr>
+          <th>Số hồ sơ</th>
+          <th>Khách hàng</th>
+          <th>Số hợp đồng</th>
+          <th>Loại hồ sơ</th>
+          <th>Trạng thái</th>
+          <th>Tình trạng duyệt</th>
+          <th>Số tiền yêu cầu</th>
+          <th>Ngày nhận hồ sơ</th>
+          <th>Ngày duyệt</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (claim of claims; track claim.id) {
+          <tr>
+            <td>{{ claim.soHoSo }}</td>
+            <td>{{ claim.tenKhachHang }}</td>
+            <td>{{ claim.soHopDong }}</td>
+            <td>{{ claim.loaiHoSo }}</td>
+            <td><app-status-badge [status]="claim.trangThaiHoSo"></app-status-badge></td>
+            <td><app-status-badge [status]="claim.tinhTrangDuyet"></app-status-badge></td>
+            <td>{{ claim.soTienYeuCau }}</td>
+            <td>{{ claim.ngayNhanHoSo}}</td>
+            <td>{{ claim.ngayDuyet}}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

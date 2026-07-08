@@ -1,0 +1,23 @@
+<app-page-title [title]="'Claim Detail Page - ID: ' + id"></app-page-title>
+
+@if (showMessage) {
+  <p class="hint">This placeholder shows the selected claim id from the route.</p>
+}
+
+<div class="list">
+  @for (item of items; track item.id) {
+    <div class="item-row">
+      <span>{{ item.id }}</span>
+      <app-status-badge [status]="item.status"></app-status-badge>
+    </div>
+  }
+</div>
+
+@switch (status) {
+  @case ('open') {
+    <p>Status: Open</p>
+  }
+  @default {
+    <p>Status: Closed</p>
+  }
+}
