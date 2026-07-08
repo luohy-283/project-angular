@@ -9,5 +9,5 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './empty-state.component.scss',
 })
 export class EmptyStateComponent {
-  @Input() message = '';
+  @Input() message = 'No data available';
 }

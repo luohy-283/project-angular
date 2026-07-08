@@ -8,11 +8,13 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+        loadComponent: () =>
+          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
       {
         path: 'users',
-        loadComponent: () => import('./features/users/users.component').then((m) => m.UsersComponent),
+        loadComponent: () =>
+          import('./features/users/users.component').then((m) => m.UsersComponent),
       },
       {
         path: 'claims',
@@ -22,11 +24,12 @@ export const routes: Routes = [
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',
-      },
+      }
     ],
   },
   {
     path: '**',
-    loadComponent: () => import('./features/not-found/not-found.component').then((m) => m.NotFoundComponent),
+    loadComponent: () =>
+      import('./features/not-found/not-found.component').then((m) => m.NotFoundComponent),
   },
 ];

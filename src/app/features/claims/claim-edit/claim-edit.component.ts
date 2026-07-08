@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { PageTitleComponent } from '../../../shared/components/page-title/page-title.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
@@ -13,13 +13,13 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 export class ClaimEditComponent implements OnInit {
   id = 'unknown';
   readonly showMessage = true;
-  readonly items: Array<{ id: number; status: string }> = [
+  readonly items: { id: number; status: string }[] = [
     { id: 1, status: 'Draft' },
     { id: 2, status: 'Pending' },
   ];
   readonly status = 'pending';
 
-  constructor(private readonly route: ActivatedRoute) {}
+  private readonly route=inject(ActivatedRoute)
 
   ngOnInit(): void {
     this.id = this.route.snapshot.paramMap.get('id') ?? 'unknown';

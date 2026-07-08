@@ -11,7 +11,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 })
 export class ClaimCreateComponent {
   readonly showMessage = true;
-  readonly items: Array<{ id: number; status: string }> = [
+  readonly items: { id: number; status: string }[] = [
     { id: 1, status: 'New' },
     { id: 2, status: 'Review' },
   ];

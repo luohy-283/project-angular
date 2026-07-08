@@ -11,9 +11,13 @@ import { StatusBadgeComponent } from '../../shared/components/status-badge/statu
 })
 export class UsersComponent {
   readonly showMessage = true;
-  readonly items: Array<{ id: number; status: string }> = [
+  readonly items: Item[] = [
     { id: 1, status: 'Active' },
     { id: 2, status: 'Inactive' },
   ];
   readonly status = 'active';
+}
+interface Item{
+  id: number;
+  status: string;
 }
