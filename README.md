@@ -70,6 +70,26 @@ Project thực hành Angular — khóa đào tạo 2 tuần.
 - Hiển thị claim list bằng table thuần
 - Có loading, error và empty state cơ bản
 
+## Ngày 5 — Reactive Forms, detail page và CRUD mock
+
+### Đã hoàn thành
+
+- Tạo form chung cho tạo/sửa hồ sơ bồi thường bằng Reactive Forms
+- Validate bắt buộc cho các field chính như số hồ sơ, tên khách hàng, số hợp đồng, loại hồ sơ, cơ sở khám chữa bệnh, ngày nhận hồ sơ, số tiền yêu cầu và số tiền duyệt
+- Thêm validation nghiệp vụ để ngăn số tiền duyệt lớn hơn số tiền yêu cầu
+- Hoàn thiện trang chi tiết hồ sơ với dữ liệu từ ClaimService
+- Thêm nút sửa/xóa hồ sơ và dialog xác nhận trước khi xóa hoặc hủy thao tác
+- CRUD mock qua localStorage để giữ dữ liệu giữa các lần reload mà không cần backend thật
+- Bổ sung phân trang cho claims list bằng reusable PaginationComponent và ClaimService giả lập server-side pagination từ localStorage
+
+### Nội dung chính
+
+- ClaimFormComponent
+- ConfirmDialogComponent
+- ClaimCreateComponent và ClaimEditComponent container mỏng
+- ClaimDetailComponent với flow xóa hồ sơ
+- ClaimService lưu dữ liệu vào localStorage sau lần đọc đầu tiên từ JSON mock
+
 ## Cài đặt và chạy
 
 ```bash
@@ -134,6 +154,10 @@ project-angular
 │  │  │  │  │  ├─ claim-edit.component.html
 │  │  │  │  │  ├─ claim-edit.component.scss
 │  │  │  │  │  └─ claim-edit.component.ts
+│  │  │  │  ├─ claim-form
+│  │  │  │  │  ├─ claim-form.component.html
+│  │  │  │  │  ├─ claim-form.component.scss
+│  │  │  │  │  └─ claim-form.component.ts
 │  │  │  │  ├─ claims.component.html
 │  │  │  │  ├─ claims.component.scss
 │  │  │  │  ├─ claims.component.ts
@@ -165,6 +189,10 @@ project-angular
 │  │  │        └─ sidebar.component.ts
 │  │  └─ shared
 │  │     ├─ components
+│  │     │  ├─ confirm-dialog
+│  │     │  │  ├─ confirm-dialog.component.html
+│  │     │  │  ├─ confirm-dialog.component.scss
+│  │     │  │  └─ confirm-dialog.component.ts
 │  │     │  ├─ empty-state
 │  │     │  │  ├─ empty-state.component.html
 │  │     │  │  ├─ empty-state.component.scss
@@ -177,6 +205,10 @@ project-angular
 │  │     │  │  ├─ page-title.component.html
 │  │     │  │  ├─ page-title.component.scss
 │  │     │  │  └─ page-title.component.ts
+│  │     │  ├─ pagination
+│  │     │  │  ├─ pagination.component.html
+│  │     │  │  ├─ pagination.component.scss
+│  │     │  │  └─ pagination.component.ts
 │  │     │  └─ status-badge
 │  │     │     ├─ status-badge.component.html
 │  │     │     ├─ status-badge.component.scss

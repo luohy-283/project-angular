@@ -1,0 +1,108 @@
+<form class="claim-form" [formGroup]="claimForm" (ngSubmit)="onSubmit()">
+  <div class="form-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Số hồ sơ</mat-label>
+      <input matInput formControlName="soHoSo" />
+      @if (getControl('soHoSo').invalid && getControl('soHoSo').touched) {
+        <mat-error>{{ getErrorMessage('soHoSo') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tên khách hàng</mat-label>
+      <input matInput formControlName="tenKhachHang" />
+      @if (getControl('tenKhachHang').invalid && getControl('tenKhachHang').touched) {
+        <mat-error>{{ getErrorMessage('tenKhachHang') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Số hợp đồng</mat-label>
+      <input matInput formControlName="soHopDong" />
+      @if (getControl('soHopDong').invalid && getControl('soHopDong').touched) {
+        <mat-error>{{ getErrorMessage('soHopDong') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Loại hồ sơ</mat-label>
+      <mat-select formControlName="loaiHoSo">
+        @for (type of claimTypes; track type) {
+          <mat-option [value]="type">{{ type }}</mat-option>
+        }
+      </mat-select>
+      @if (getControl('loaiHoSo').invalid && getControl('loaiHoSo').touched) {
+        <mat-error>{{ getErrorMessage('loaiHoSo') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Cơ sở khám chữa bệnh</mat-label>
+      <input matInput formControlName="tenCskcb" />
+      @if (getControl('tenCskcb').invalid && getControl('tenCskcb').touched) {
+        <mat-error>{{ getErrorMessage('tenCskcb') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Phương thức nhận hồ sơ</mat-label>
+      <input matInput formControlName="phuongThucNhanHs" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Ngày nhận hồ sơ</mat-label>
+      <input matInput type="date" formControlName="ngayNhanHoSo" />
+      @if (getControl('ngayNhanHoSo').invalid && getControl('ngayNhanHoSo').touched) {
+        <mat-error>{{ getErrorMessage('ngayNhanHoSo') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Số tiền yêu cầu</mat-label>
+      <input matInput type="number" formControlName="soTienYeuCau" />
+      @if (getControl('soTienYeuCau').invalid && getControl('soTienYeuCau').touched) {
+        <mat-error>{{ getErrorMessage('soTienYeuCau') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Số tiền duyệt</mat-label>
+      <input matInput type="number" formControlName="soTienDuyet" />
+      @if (getControl('soTienDuyet').invalid && getControl('soTienDuyet').touched) {
+        <mat-error>{{ getErrorMessage('soTienDuyet') }}</mat-error>
+      }
+      @if (claimForm.hasError('amountExceeded') && getControl('soTienDuyet').touched) {
+        <mat-error>{{ getAmountErrorMessage() }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Trạng thái hồ sơ</mat-label>
+      <mat-select formControlName="trangThaiHoSo">
+        @for (status of claimStatuses; track status) {
+          <mat-option [value]="status">{{ status }}</mat-option>
+        }
+      </mat-select>
+      @if (getControl('trangThaiHoSo').invalid && getControl('trangThaiHoSo').touched) {
+        <mat-error>{{ getErrorMessage('trangThaiHoSo') }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tình trạng duyệt</mat-label>
+      <mat-select formControlName="tinhTrangDuyet">
+        @for (status of approvalStatuses; track status) {
+          <mat-option [value]="status">{{ status }}</mat-option>
+        }
+      </mat-select>
+      @if (getControl('tinhTrangDuyet').invalid && getControl('tinhTrangDuyet').touched) {
+        <mat-error>{{ getErrorMessage('tinhTrangDuyet') }}</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="onCancel()">Hủy</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="claimForm.invalid">Lưu hồ sơ</button>
+  </div>
+</form>

@@ -1,4 +1,7 @@
-<app-page-title title="Claims Page"></app-page-title>
+<div class="page-header">
+  <app-page-title title="Claims Page"></app-page-title>
+  <a mat-flat-button color="primary" routerLink="/claims/create">Tạo hồ sơ mới</a>
+</div>
 
 @if (loading) {
   <app-loading></app-loading>
@@ -20,6 +23,7 @@
           <th>Số tiền yêu cầu</th>
           <th>Ngày nhận hồ sơ</th>
           <th>Ngày duyệt</th>
+          <th>Hành động</th>
         </tr>
       </thead>
       <tbody>
@@ -34,9 +38,19 @@
             <td>{{ claim.soTienYeuCau }}</td>
             <td>{{ claim.ngayNhanHoSo}}</td>
             <td>{{ claim.ngayDuyet}}</td>
+            <td>
+              <a mat-stroked-button [routerLink]="['/', 'claims', claim.id]">Xem chi tiết</a>
+            </td>
           </tr>
         }
       </tbody>
     </table>
   </div>
+
+  <app-pagination
+    [length]="total"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    (pageChange)="onPageChange($event)"
+  ></app-pagination>
 }

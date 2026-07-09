@@ -1,23 +1,9 @@
-<app-page-title [title]="'Claim Edit Page - ID: ' + id"></app-page-title>
+<app-page-title [title]="'Chỉnh sửa hồ sơ ' + (id || '')"></app-page-title>
 
-@if (showMessage) {
-  <p class="hint">This placeholder shows the edit route for the selected claim.</p>
-}
-
-<div class="list">
-  @for (item of items; track item.id) {
-    <div class="item-row">
-      <span>{{ item.id }}</span>
-      <app-status-badge [status]="item.status"></app-status-badge>
-    </div>
-  }
-</div>
-
-@switch (status) {
-  @case ('pending') {
-    <p>Status: Pending</p>
-  }
-  @default {
-    <p>Status: Draft</p>
-  }
+@if (loading) {
+  <app-loading></app-loading>
+} @else if (!initialValue) {
+  <app-empty-state message="Không tìm thấy hồ sơ để chỉnh sửa."></app-empty-state>
+} @else {
+  <app-claim-form [initialValue]="initialValue" (formSubmit)="onSubmit($event)" (formCancel)="onCancel()"></app-claim-form>
 }
