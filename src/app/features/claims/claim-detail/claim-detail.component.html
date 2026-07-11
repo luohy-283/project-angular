@@ -19,11 +19,11 @@
       </div>
       <div>
         <span class="label">Trạng thái</span>
-        <app-status-badge [status]="claim.trangThaiHoSo"></app-status-badge>
+        <app-status-badge [status]="trangThaiLabel[claim.trangThaiHoSo]"></app-status-badge>
       </div>
       <div>
         <span class="label">Tình trạng duyệt</span>
-        <app-status-badge [status]="claim.tinhTrangDuyet"></app-status-badge>
+        <app-status-badge [status]="tinhTrangDuyetLabel[claim.tinhTrangDuyet]"></app-status-badge>
       </div>
     </div>
 

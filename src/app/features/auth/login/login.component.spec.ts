@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { of } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginComponent } from './login.component';
 
@@ -41,7 +42,7 @@ describe('LoginComponent', () => {
   });
 
   it('should call login and navigate to dashboard when credentials are valid', () => {
-    authService.login.and.returnValue(true);
+    authService.login.and.returnValue(of(true));
     component.loginForm.setValue({ username: 'admin', password: 'admin' });
 
     component.onSubmit();
@@ -52,7 +53,7 @@ describe('LoginComponent', () => {
   });
 
   it('should show an error and stay on login page when credentials are invalid', () => {
-    authService.login.and.returnValue(false);
+    authService.login.and.returnValue(of(false));
     component.loginForm.setValue({ username: 'wrong', password: 'wrong' });
 
     component.onSubmit();

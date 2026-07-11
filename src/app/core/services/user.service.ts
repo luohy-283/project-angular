@@ -1,29 +1,61 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, throwError } from 'rxjs';
-import { mapPublicUsersToAppUsers } from '../adapters/user.adapter';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { AppUser } from '../models/app-user.model';
-import { PublicUser } from '../models/public-user.model';
+
+interface AdminUserDto {
+  id: number;
+  login: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  authorities: string[];
+}
+
+export interface UserListResult {
+  items: AppUser[];
+  total: number;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private readonly http = inject(HttpClient);
-  private readonly usersApiUrl = 'https://jsonplaceholder.typicode.com/users';
-  private readonly usersFallbackPath = 'assets/mock-data/users.json';
+  private readonly usersUrl = `${environment.apiUrl}/admin/users`;
 
-  getUsers(): Observable<AppUser[]> {
-    return this.http.get<PublicUser[]>(this.usersApiUrl).pipe(
-      map((users) => mapPublicUsersToAppUsers(users)),
-      catchError(() => this.getFallbackUsers()),
-    );
+  getUsers(params: { page?: number; size?: number } = {}): Observable<AppUser[]> {
+    return this.getUsersList(params).pipe(map((result) => result.items));
   }
 
-  private getFallbackUsers(): Observable<AppUser[]> {
-    return this.http.get<PublicUser[]>(this.usersFallbackPath).pipe(
-      map((users) => mapPublicUsersToAppUsers(users)),
-      catchError(() => throwError(() => new Error('Unable to load users from the public API or fallback data.'))),
-    );
+  getUsersList(params: { page?: number; size?: number } = {}): Observable<UserListResult> {
+    const page = Math.max(0, Math.floor(params.page ?? 0));
+    const size = Math.max(1, Math.floor(params.size ?? 20));
+
+    const httpParams = new HttpParams().set('page', String(page)).set('size', String(size));
+
+    return this.http
+      .get<AdminUserDto[]>(this.usersUrl, {
+        params: httpParams,
+        observe: 'response',
+      })
+      .pipe(
+        map((response) => ({
+          items: (response.body ?? []).map((user) => this.mapToAppUser(user)),
+          total: Number(response.headers.get('X-Total-Count') ?? (response.body?.length ?? 0)),
+        })),
+      );
+  }
+
+  private mapToAppUser(user: AdminUserDto): AppUser {
+    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.login;
+
+    return {
+      id: user.id,
+      fullName,
+      email: user.email ?? '',
+      authorities: user.authorities ?? [],
+    };
   }
 }

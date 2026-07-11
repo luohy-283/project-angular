@@ -5,8 +5,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Claim } from '../../../core/models/claim.model';
+import { Claim, TinhTrangDuyet, TrangThaiHoSo } from '../../../core/models/claim.model';
 import { ClaimPayload } from '../../../core/services/claim.service';
+import {
+  TINH_TRANG_DUYET_LABEL,
+  TINH_TRANG_DUYET_OPTIONS,
+  TRANG_THAI_LABEL,
+  TRANG_THAI_OPTIONS,
+} from '../../../shared/constants/claim-status.const';
 
 export type ClaimFormValue = Omit<Claim, 'id'> & {
   maCskcb?: string;
@@ -50,15 +56,23 @@ export class ClaimFormComponent implements OnChanges {
       ngayNhanHoSo: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
       soTienYeuCau: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(1)] }),
       soTienDuyet: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(0)] }),
-      trangThaiHoSo: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-      tinhTrangDuyet: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+      trangThaiHoSo: new FormControl<TrangThaiHoSo>('MOI_TIEP_NHAN', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
+      tinhTrangDuyet: new FormControl<TinhTrangDuyet>('CHO_DUYET', {
+        nonNullable: true,
+        validators: [Validators.required],
+      }),
     },
     { validators: amountComparisonValidator },
   );
 
   readonly claimTypes: ('TTTT' | 'BLT')[] = ['TTTT', 'BLT'];
-  readonly claimStatuses = ['Mới tiếp nhận', 'Đang xử lý', 'Đã hoàn thành', 'Đã hủy'];
-  readonly approvalStatuses = ['Chờ duyệt', 'Đã duyệt', 'Từ chối duyệt'];
+  readonly trangThaiOptions = TRANG_THAI_OPTIONS;
+  readonly trangThaiLabel = TRANG_THAI_LABEL;
+  readonly tinhTrangDuyetOptions = TINH_TRANG_DUYET_OPTIONS;
+  readonly tinhTrangDuyetLabel = TINH_TRANG_DUYET_LABEL;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!changes['initialValue']) {
@@ -79,8 +93,8 @@ export class ClaimFormComponent implements OnChanges {
         ngayNhanHoSo: this.initialValue.ngayNhanHoSo ?? '',
         soTienYeuCau: this.initialValue.soTienYeuCau ?? null,
         soTienDuyet: this.initialValue.soTienDuyet ?? null,
-        trangThaiHoSo: this.initialValue.trangThaiHoSo ?? '',
-        tinhTrangDuyet: this.initialValue.tinhTrangDuyet ?? '',
+        trangThaiHoSo: this.initialValue.trangThaiHoSo ?? 'MOI_TIEP_NHAN',
+        tinhTrangDuyet: this.initialValue.tinhTrangDuyet ?? 'CHO_DUYET',
       });
       return;
     }

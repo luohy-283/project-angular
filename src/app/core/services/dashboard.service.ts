@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import { Dashboard } from '../models/dashboard.model';
 
 @Injectable({
@@ -10,6 +11,6 @@ export class DashboardService {
   private readonly http = inject(HttpClient);
 
   getSummary(): Observable<Dashboard> {
-    return this.http.get<Dashboard>('assets/mock-data/dashboard.json');
+    return this.http.get<Dashboard>(`${environment.apiUrl}/dashboard`);
   }
 }

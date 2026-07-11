@@ -11,10 +11,10 @@
 
   <mat-form-field appearance="outline" class="filter-field">
     <mat-label>Trạng thái hồ sơ</mat-label>
-    <mat-select [ngModel]="status()" (ngModelChange)="onStatusChange($event)">
+    <mat-select [ngModel]="trangThaiHoSo()" (ngModelChange)="onTrangThaiHoSoChange($event)">
       <mat-option [value]="null">Tất cả</mat-option>
-      @for (s of claimStatuses; track s) {
-        <mat-option [value]="s">{{ s }}</mat-option>
+      @for (status of trangThaiOptions; track status) {
+        <mat-option [value]="status">{{ trangThaiLabel[status] }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
@@ -60,8 +60,8 @@
             <td>{{ claim.tenKhachHang }}</td>
             <td>{{ claim.soHopDong }}</td>
             <td>{{ claim.loaiHoSo }}</td>
-            <td><app-status-badge [status]="claim.trangThaiHoSo"></app-status-badge></td>
-            <td><app-status-badge [status]="claim.tinhTrangDuyet"></app-status-badge></td>
+            <td><app-status-badge [status]="trangThaiLabel[claim.trangThaiHoSo]"></app-status-badge></td>
+            <td><app-status-badge [status]="tinhTrangDuyetLabel[claim.tinhTrangDuyet]"></app-status-badge></td>
             <td>{{ claim.soTienYeuCau }}</td>
             <td>{{ claim.ngayNhanHoSo}}</td>
             <td>{{ claim.ngayDuyet}}</td>

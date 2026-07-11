@@ -1,4 +1,7 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export type UserRole = 'ADMIN' | 'USER';
 
@@ -7,29 +10,45 @@ export interface AuthUser {
   role: UserRole;
 }
 
+export interface Account {
+  login: string;
+  firstName?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  authorities: string[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private readonly http = inject(HttpClient);
   private readonly tokenKey = 'access_token';
   private readonly userKey = 'current_user';
 
-  private readonly mockAccounts: { username: string; password: string; role: UserRole }[] = [
-    { username: 'admin', password: 'admin', role: 'ADMIN' },
-    { username: 'user', password: 'user', role: 'USER' },
-  ];
-
-  login(username: string, password: string): boolean {
-    const account = this.mockAccounts.find((item) => item.username === username && item.password === password);
-
-    if (!account) {
-      this.clearAuthState();
-      return false;
-    }
-
-    const currentUser: AuthUser = { username: account.username, role: account.role };
-    this.persistAuthState(currentUser);
-    return true;
+  login(username: string, password: string): Observable<boolean> {
+    return this.http
+      .post<{ id_token: string }>(`${environment.apiUrl}/authenticate`, {
+        username,
+        password,
+        rememberMe: false,
+      })
+      .pipe(
+        tap((response) => {
+          if (typeof window !== 'undefined') {
+            window.localStorage.setItem(this.tokenKey, response.id_token);
+          }
+        }),
+        switchMap(() => this.getAccount()),
+        map((account) => {
+          this.persistCurrentUser(this.mapAccountToAuthUser(account));
+          return true;
+        }),
+        catchError(() => {
+          this.clearAuthState();
+          return of(false);
+        }),
+      );
   }
 
   logout(): void {
@@ -69,12 +88,24 @@ export class AuthService {
     return window.localStorage.getItem(this.tokenKey);
   }
 
-  private persistAuthState(currentUser: AuthUser): void {
+  getAccount(): Observable<Account> {
+    return this.http.get<Account>(`${environment.apiUrl}/account`);
+  }
+
+  private mapAccountToAuthUser(account: Account): AuthUser {
+    const role: UserRole = account.authorities.includes('ROLE_ADMIN') ? 'ADMIN' : 'USER';
+
+    return {
+      username: account.login,
+      role,
+    };
+  }
+
+  private persistCurrentUser(currentUser: AuthUser): void {
     if (typeof window === 'undefined') {
       return;
     }
 
-    window.localStorage.setItem(this.tokenKey, 'mock-access-token');
     window.localStorage.setItem(this.userKey, JSON.stringify(currentUser));
   }
 

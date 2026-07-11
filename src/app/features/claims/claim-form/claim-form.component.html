@@ -79,8 +79,8 @@
     <mat-form-field appearance="outline">
       <mat-label>Trạng thái hồ sơ</mat-label>
       <mat-select formControlName="trangThaiHoSo">
-        @for (status of claimStatuses; track status) {
-          <mat-option [value]="status">{{ status }}</mat-option>
+        @for (status of trangThaiOptions; track status) {
+          <mat-option [value]="status">{{ trangThaiLabel[status] }}</mat-option>
         }
       </mat-select>
       @if (getControl('trangThaiHoSo').invalid && getControl('trangThaiHoSo').touched) {
@@ -91,8 +91,8 @@
     <mat-form-field appearance="outline">
       <mat-label>Tình trạng duyệt</mat-label>
       <mat-select formControlName="tinhTrangDuyet">
-        @for (status of approvalStatuses; track status) {
-          <mat-option [value]="status">{{ status }}</mat-option>
+        @for (status of tinhTrangDuyetOptions; track status) {
+          <mat-option [value]="status">{{ tinhTrangDuyetLabel[status] }}</mat-option>
         }
       </mat-select>
       @if (getControl('tinhTrangDuyet').invalid && getControl('tinhTrangDuyet').touched) {

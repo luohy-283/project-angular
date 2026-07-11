@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map, of, tap } from 'rxjs';
-import { Claim, ClaimListResponse, ClaimListResult, ClaimQueryParams } from '../models/claim.model';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { Claim, ClaimListResult, ClaimQueryParams } from '../models/claim.model';
 
 export type ClaimPayload = Omit<Claim, 'id'> & {
   id: string;
@@ -18,155 +19,59 @@ export type ClaimCreatePayload = Omit<ClaimPayload, 'id'>;
 })
 export class ClaimService {
   private readonly http = inject(HttpClient);
-  private readonly storageKey = 'mock-claims';
-  private readonly claimsPath = 'assets/mock-data/claims.json';
+  private readonly claimsUrl = `${environment.apiUrl}/claims`;
 
-  getClaims(params: { pageIndex: number; pageSize: number }): Observable<ClaimListResponse> {
+  getClaimsList(params: ClaimQueryParams): Observable<ClaimListResult> {
     const safePageIndex = Math.max(0, Math.floor(params.pageIndex));
     const safePageSize = Math.max(1, Math.floor(params.pageSize));
-    const startIndex = safePageIndex * safePageSize;
 
-    const storedClaims = this.readStoredClaims();
-    if (storedClaims.length > 0) {
-      const pagedClaims = storedClaims.slice(startIndex, startIndex + safePageSize);
-      return of({ items: pagedClaims, total: storedClaims.length });
+    let httpParams = new HttpParams()
+      .set('page', String(safePageIndex))
+      .set('size', String(safePageSize));
+
+    const keyword = params.keyword?.trim();
+    if (keyword) {
+      httpParams = httpParams.set('keyword', keyword);
     }
 
-    return this.http.get<ClaimListResponse>(this.claimsPath).pipe(
-      tap((response) => this.persistClaims(response.items ?? [])),
-      map((response) => {
-        const items = response.items ?? [];
-        return {
-          items: items.slice(startIndex, startIndex + safePageSize),
-          total: response.total ?? items.length,
-        };
-      }),
-    );
+    if (params.trangThaiHoSo) {
+      httpParams = httpParams.set('trangThaiHoSo', params.trangThaiHoSo);
+    }
+
+    if (params.loaiHoSo) {
+      httpParams = httpParams.set('loaiHoSo', params.loaiHoSo);
+    }
+
+    if (params.sort) {
+      httpParams = httpParams.set('sort', params.sort);
+    }
+
+    return this.http
+      .get<Claim[]>(this.claimsUrl, {
+        params: httpParams,
+        observe: 'response',
+      })
+      .pipe(
+        map((response) => ({
+          items: response.body ?? [],
+          total: Number(response.headers.get('X-Total-Count') ?? (response.body?.length ?? 0)),
+        })),
+      );
   }
 
   getById(id: string): Observable<ClaimPayload | null> {
-    return this.getClaims({ pageIndex: 0, pageSize: 1000 }).pipe(map((response) => response.items.find((claim) => claim.id === id) ?? null));
+    return this.http.get<ClaimPayload>(`${this.claimsUrl}/${id}`).pipe(map((claim) => claim ?? null));
   }
 
   create(claim: ClaimCreatePayload): Observable<ClaimPayload> {
-    return this.getClaims({ pageIndex: 0, pageSize: 1000 }).pipe(
-      map((response) => response.items),
-      map((items) => {
-        const nextClaim: ClaimPayload = {
-          ...claim,
-          id: this.generateId(items),
-          ngayDuyet: claim.ngayDuyet ?? null,
-        };
-        const nextItems = [...items, nextClaim as ClaimPayload];
-        this.persistClaims(nextItems);
-        return nextClaim;
-      }),
-    );
+    return this.http.post<ClaimPayload>(this.claimsUrl, claim);
   }
 
   update(id: string, claim: Partial<ClaimPayload>): Observable<ClaimPayload> {
-    return this.getClaims({ pageIndex: 0, pageSize: 1000 }).pipe(
-      map((response) => response.items),
-      map((items) => {
-        const currentClaim = items.find((item) => item.id === id);
-        if (!currentClaim) {
-          throw new Error('Claim not found');
-        }
-
-        const updatedClaim: ClaimPayload = { ...currentClaim, ...claim, id };
-        const nextItems = items.map((item) => (item.id === id ? updatedClaim : item));
-        this.persistClaims(nextItems);
-        return updatedClaim;
-      }),
-    );
+    return this.http.put<ClaimPayload>(`${this.claimsUrl}/${id}`, claim);
   }
 
-  delete(id: string): Observable<boolean> {
-    return this.getClaims({ pageIndex: 0, pageSize: 1000 }).pipe(
-      map((response) => response.items),
-      map((items) => {
-        const hasClaim = items.some((item) => item.id === id);
-        if (!hasClaim) {
-          return false;
-        }
-
-        const nextItems = items.filter((item) => item.id !== id);
-        this.persistClaims(nextItems);
-        return true;
-      }),
-    );
-  }
-
-  private readStoredClaims(): ClaimPayload[] {
-    if (typeof window === 'undefined') {
-      return [];
-    }
-
-    const storedValue = window.localStorage.getItem(this.storageKey);
-    if (!storedValue) {
-      return [];
-    }
-
-    try {
-      return JSON.parse(storedValue) as ClaimPayload[];
-    } catch {
-      return [];
-    }
-  }
-
-  private persistClaims(claims: ClaimPayload[]): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    window.localStorage.setItem(this.storageKey, JSON.stringify(claims));
-  }
-
-  getClaimsList(params: ClaimQueryParams): Observable<ClaimListResult> {
-    const { keyword = '', status = null, type = null, pageIndex, pageSize } = params;
-    const normalizedKeyword = keyword.trim().toLowerCase();
-    const safePageIndex = Math.max(0, Math.floor(pageIndex));
-    const safePageSize = Math.max(1, Math.floor(pageSize));
-    const startIndex = safePageIndex * safePageSize;
-
-    const storedClaims = this.readStoredClaims();
-    const claims$: Observable<ClaimPayload[]> =
-      storedClaims.length > 0
-        ? of(storedClaims)
-        : this.http.get<ClaimListResponse>(this.claimsPath).pipe(
-            tap((response) => this.persistClaims(response.items ?? [])),
-            map((response) => response.items ?? []),
-          );
-
-    return claims$.pipe(
-      map((allClaims) => {
-        const filteredClaims = allClaims.filter((claim) => {
-          const matchesKeyword =
-            !normalizedKeyword ||
-            claim.soHoSo.toLowerCase().includes(normalizedKeyword) ||
-            claim.tenKhachHang.toLowerCase().includes(normalizedKeyword);
-          const matchesStatus = !status || claim.trangThaiHoSo === status;
-          const matchesType = !type || claim.loaiHoSo === type;
-
-          return matchesKeyword && matchesStatus && matchesType;
-        });
-
-        return {
-          items: filteredClaims.slice(startIndex, startIndex + safePageSize),
-          total: filteredClaims.length,
-        };
-      }),
-    );
-  }
-
-  private generateId(items: ClaimPayload[]): string {
-    const numericIds = items
-      .map((item) => item.id)
-      .filter((item): item is string => Boolean(item))
-      .map((item) => Number(item?.replace(/\D/g, '')))
-      .filter((item) => Number.isFinite(item));
-
-    const maxId = numericIds.length > 0 ? Math.max(...numericIds) : 0;
-    return `HSBT${String(maxId + 1).padStart(3, '0')}`;
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.claimsUrl}/${id}`);
   }
 }

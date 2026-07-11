@@ -1,11 +1,14 @@
+export type TrangThaiHoSo = 'MOI_TIEP_NHAN' | 'DANG_XU_LY' | 'DA_HOAN_THANH';
+export type TinhTrangDuyet = 'CHO_DUYET' | 'DA_DUYET';
+
 export interface Claim {
   id: string;
   soHoSo: string;
   tenKhachHang: string;
   soHopDong: string;
   loaiHoSo: 'TTTT' | 'BLT';
-  trangThaiHoSo: string;
-  tinhTrangDuyet: string;
+  trangThaiHoSo: TrangThaiHoSo;
+  tinhTrangDuyet: TinhTrangDuyet;
   soTienYeuCau: number;
   soTienDuyet: number;
   ngayNhanHoSo: string;
@@ -19,10 +22,11 @@ export interface ClaimListResponse {
 
 export interface ClaimQueryParams {
   keyword?: string;
-  status?: Claim['trangThaiHoSo'] | null;
-  type?: Claim['loaiHoSo'] | null;
+  trangThaiHoSo?: TrangThaiHoSo | null;
+  loaiHoSo?: Claim['loaiHoSo'] | null;
   pageIndex: number;
   pageSize: number;
+  sort?: string;
 }
 
 export interface ClaimListResult {

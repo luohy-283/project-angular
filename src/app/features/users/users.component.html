@@ -22,7 +22,9 @@
             <td>{{ user.fullName }}</td>
             <td>{{ user.email }}</td>
             <td>
-              <span class="role-badge" [class.admin]="user.role === 'ADMIN'">{{ user.role }}</span>
+              <span class="role-badge" [class.admin]="user.authorities[0] === 'ROLE_ADMIN'">
+                {{ user.authorities[0].replace('ROLE_', '') }}
+              </span>
             </td>
           </tr>
         }

@@ -24,6 +24,7 @@ export class LoginComponent {
   });
 
   authError = '';
+  isSubmitting = false;
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -32,15 +33,26 @@ export class LoginComponent {
     }
 
     const { username, password } = this.loginForm.getRawValue();
-    const isAuthenticated = this.authService.login(username, password);
-
-    if (!isAuthenticated) {
-      this.authError = 'Tên đăng nhập hoặc mật khẩu không đúng.';
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-
+    this.isSubmitting = true;
     this.authError = '';
-    this.router.navigate(['/dashboard']);
+
+    this.authService.login(username, password).subscribe({
+      next: (isAuthenticated) => {
+        this.isSubmitting = false;
+
+        if (!isAuthenticated) {
+          this.authError = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+          this.loginForm.markAllAsTouched();
+          return;
+        }
+
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => {
+        this.isSubmitting = false;
+        this.authError = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+        this.loginForm.markAllAsTouched();
+      },
+    });
   }
 }

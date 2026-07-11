@@ -10,6 +10,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { PageTitleComponent } from '../../../shared/components/page-title/page-title.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { TINH_TRANG_DUYET_LABEL, TRANG_THAI_LABEL } from '../../../shared/constants/claim-status.const';
 
 type ClaimDetailValue = Claim & {
   maCskcb?: string;
@@ -28,6 +29,9 @@ export class ClaimDetailComponent implements OnInit {
   id = '';
   claim: ClaimDetailValue | null = null;
   loading = false;
+
+  readonly trangThaiLabel = TRANG_THAI_LABEL;
+  readonly tinhTrangDuyetLabel = TINH_TRANG_DUYET_LABEL;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
