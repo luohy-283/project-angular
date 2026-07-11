@@ -1,16 +1,43 @@
-.hint {
-  margin: 1rem 0;
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 1rem;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin: 1rem 0;
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.item-row {
-  display: flex;
+.users-table th,
+.users-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+.role-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  background: #e3f2fd;
+  color: #1565c0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-badge.admin {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.error-state {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #f5c2c7;
+  border-radius: 0.5rem;
+  background: #f8d7da;
+  color: #842029;
 }

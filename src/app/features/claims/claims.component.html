@@ -3,11 +3,38 @@
   <a mat-flat-button color="primary" routerLink="/claims/create">Tạo hồ sơ mới</a>
 </div>
 
-@if (loading) {
+<div class="search-filter-section">
+  <mat-form-field appearance="outline" class="search-field">
+    <mat-label>Tìm kiếm (Số hồ sơ, Tên khách hàng)</mat-label>
+    <input matInput [ngModel]="keyword()" (ngModelChange)="onKeywordChange($event)" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Trạng thái hồ sơ</mat-label>
+    <mat-select [ngModel]="status()" (ngModelChange)="onStatusChange($event)">
+      <mat-option [value]="null">Tất cả</mat-option>
+      @for (s of claimStatuses; track s) {
+        <mat-option [value]="s">{{ s }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filter-field">
+    <mat-label>Loại hồ sơ</mat-label>
+    <mat-select [ngModel]="type()" (ngModelChange)="onTypeChange($event)">
+      <mat-option [value]="null">Tất cả</mat-option>
+      @for (t of claimTypes; track t) {
+        <mat-option [value]="t">{{ t }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+@if (loading()) {
   <app-loading></app-loading>
-} @else if (error) {
+} @else if (error()) {
   <p class="error-state">Unable to load claims.</p>
-} @else if (claims.length === 0) {
+} @else if (claims().length === 0) {
   <app-empty-state message="No claims available."></app-empty-state>
 } @else {
   <div class="table-wrapper">
@@ -27,7 +54,7 @@
         </tr>
       </thead>
       <tbody>
-        @for (claim of claims; track claim.id) {
+        @for (claim of claims(); track claim.id) {
           <tr>
             <td>{{ claim.soHoSo }}</td>
             <td>{{ claim.tenKhachHang }}</td>
@@ -48,9 +75,9 @@
   </div>
 
   <app-pagination
-    [length]="total"
-    [pageIndex]="pageIndex"
-    [pageSize]="pageSize"
+    [length]="total()"
+    [pageIndex]="pageIndex()"
+    [pageSize]="pageSize()"
     (pageChange)="onPageChange($event)"
   ></app-pagination>
 }

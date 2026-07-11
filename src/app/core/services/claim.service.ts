@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map, of, tap } from 'rxjs';
-import { Claim, ClaimListResponse } from '../models/claim.model';
+import { Claim, ClaimListResponse, ClaimListResult, ClaimQueryParams } from '../models/claim.model';
 
 export type ClaimPayload = Omit<Claim, 'id'> & {
   id: string;
@@ -120,6 +120,43 @@ export class ClaimService {
     }
 
     window.localStorage.setItem(this.storageKey, JSON.stringify(claims));
+  }
+
+  getClaimsList(params: ClaimQueryParams): Observable<ClaimListResult> {
+    const { keyword = '', status = null, type = null, pageIndex, pageSize } = params;
+    const normalizedKeyword = keyword.trim().toLowerCase();
+    const safePageIndex = Math.max(0, Math.floor(pageIndex));
+    const safePageSize = Math.max(1, Math.floor(pageSize));
+    const startIndex = safePageIndex * safePageSize;
+
+    const storedClaims = this.readStoredClaims();
+    const claims$: Observable<ClaimPayload[]> =
+      storedClaims.length > 0
+        ? of(storedClaims)
+        : this.http.get<ClaimListResponse>(this.claimsPath).pipe(
+            tap((response) => this.persistClaims(response.items ?? [])),
+            map((response) => response.items ?? []),
+          );
+
+    return claims$.pipe(
+      map((allClaims) => {
+        const filteredClaims = allClaims.filter((claim) => {
+          const matchesKeyword =
+            !normalizedKeyword ||
+            claim.soHoSo.toLowerCase().includes(normalizedKeyword) ||
+            claim.tenKhachHang.toLowerCase().includes(normalizedKeyword);
+          const matchesStatus = !status || claim.trangThaiHoSo === status;
+          const matchesType = !type || claim.loaiHoSo === type;
+
+          return matchesKeyword && matchesStatus && matchesType;
+        });
+
+        return {
+          items: filteredClaims.slice(startIndex, startIndex + safePageSize),
+          total: filteredClaims.length,
+        };
+      }),
+    );
   }
 
   private generateId(items: ClaimPayload[]): string {

@@ -1,0 +1,117 @@
+[
+  {
+    "id": 1,
+    "name": "Nguyen Van Fallback",
+    "username": "fallback.nguyen",
+    "email": "nguyen.fallback@fallback.local",
+    "address": {
+      "street": "Duong Fallback So 1",
+      "suite": "Toa A",
+      "city": "Fallback City",
+      "zipcode": "00001",
+      "geo": {
+        "lat": "0.0000",
+        "lng": "0.0000"
+      }
+    },
+    "phone": "000-000-0001",
+    "website": "fallback.local",
+    "company": {
+      "name": "Fallback Data Co",
+      "catchPhrase": "Du lieu du phong khi API loi",
+      "bs": "mock fallback service"
+    }
+  },
+  {
+    "id": 102,
+    "name": "Tran Thi Fallback",
+    "username": "fallback.tran",
+    "email": "tran.fallback@fallback.local",
+    "address": {
+      "street": "Duong Fallback So 2",
+      "suite": "Toa B",
+      "city": "Fallback City",
+      "zipcode": "00002",
+      "geo": {
+        "lat": "0.0000",
+        "lng": "0.0000"
+      }
+    },
+    "phone": "000-000-0002",
+    "website": "fallback.local",
+    "company": {
+      "name": "Fallback Data Co",
+      "catchPhrase": "Du lieu du phong khi API loi",
+      "bs": "mock fallback service"
+    }
+  },
+  {
+    "id": 103,
+    "name": "Le Van Fallback",
+    "username": "fallback.le",
+    "email": "le.fallback@fallback.local",
+    "address": {
+      "street": "Duong Fallback So 3",
+      "suite": "Toa C",
+      "city": "Fallback City",
+      "zipcode": "00003",
+      "geo": {
+        "lat": "0.0000",
+        "lng": "0.0000"
+      }
+    },
+    "phone": "000-000-0003",
+    "website": "fallback.local",
+    "company": {
+      "name": "Fallback Data Co",
+      "catchPhrase": "Du lieu du phong khi API loi",
+      "bs": "mock fallback service"
+    }
+  },
+  {
+    "id": 104,
+    "name": "Pham Thi Fallback",
+    "username": "fallback.pham",
+    "email": "pham.fallback@fallback.local",
+    "address": {
+      "street": "Duong Fallback So 4",
+      "suite": "Toa D",
+      "city": "Fallback City",
+      "zipcode": "00004",
+      "geo": {
+        "lat": "0.0000",
+        "lng": "0.0000"
+      }
+    },
+    "phone": "000-000-0004",
+    "website": "fallback.local",
+    "company": {
+      "name": "Fallback Data Co",
+      "catchPhrase": "Du lieu du phong khi API loi",
+      "bs": "mock fallback service"
+    }
+  },
+  {
+    "id": 105,
+    "name": "Hoang Van Fallback",
+    "username": "fallback.hoang",
+    "email": "hoang.fallback@fallback.local",
+    "address": {
+      "street": "Duong Fallback So 5",
+      "suite": "Toa E",
+      "city": "Fallback City",
+      "zipcode": "00005",
+      "geo": {
+        "lat": "0.0000",
+        "lng": "0.0000"
+      }
+    },
+    "phone": "000-000-0005",
+    "website": "fallback.local",
+    "company": {
+      "name": "Fallback Data Co",
+      "catchPhrase": "Du lieu du phong khi API loi",
+      "bs": "mock fallback service"
+    }
+  }
+]

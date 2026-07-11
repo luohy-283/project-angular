@@ -56,7 +56,7 @@ export class ClaimFormComponent implements OnChanges {
     { validators: amountComparisonValidator },
   );
 
-  readonly claimTypes: Array<'TTTT' | 'BLT'> = ['TTTT', 'BLT'];
+  readonly claimTypes: ('TTTT' | 'BLT')[] = ['TTTT', 'BLT'];
   readonly claimStatuses = ['Mới tiếp nhận', 'Đang xử lý', 'Đã hoàn thành', 'Đã hủy'];
   readonly approvalStatuses = ['Chờ duyệt', 'Đã duyệt', 'Từ chối duyệt'];
 
