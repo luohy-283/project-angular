@@ -13,7 +13,6 @@
         <tr>
           <th>Full Name</th>
           <th>Email</th>
-          <th>Phone</th>
           <th>Role</th>
         </tr>
       </thead>
@@ -22,7 +21,6 @@
           <tr>
             <td>{{ user.fullName }}</td>
             <td>{{ user.email }}</td>
-            <td>{{ user.phone }}</td>
             <td>
               <span class="role-badge" [class.admin]="user.role === 'ADMIN'">{{ user.role }}</span>
             </td>
