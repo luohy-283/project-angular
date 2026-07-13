@@ -1,7 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { catchError, finalize, of, switchMap } from 'rxjs';
 import { ClaimCreatePayload, ClaimPayload, ClaimService } from '../../../core/services/claim.service';
+import { getHttpErrorMessage } from '../../../core/utils/http-error.util';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -19,28 +22,45 @@ export class ClaimEditComponent implements OnInit {
   id = '';
   initialValue?: ClaimPayload;
   loading = false;
+  loadError = false;
+  submitError = '';
+  isSubmitting = false;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly claimService = inject(ClaimService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id') ?? '';
-    if (!this.id) {
-      return;
-    }
+    this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          this.id = params.get('id') ?? '';
+          this.initialValue = undefined;
+          this.loadError = false;
+          this.submitError = '';
 
-    this.loading = true;
-    this.claimService.getById(this.id).subscribe({
-      next: (claim) => {
+          if (!this.id) {
+            return of(null);
+          }
+
+          this.loading = true;
+          return this.claimService.getById(this.id).pipe(
+            catchError(() => {
+              this.loadError = true;
+              return of(null);
+            }),
+            finalize(() => {
+              this.loading = false;
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((claim) => {
         this.initialValue = claim ?? undefined;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
-    });
+      });
   }
 
   onSubmit(claim: ClaimCreatePayload): void {
@@ -48,10 +68,19 @@ export class ClaimEditComponent implements OnInit {
       return;
     }
 
-    this.claimService.update(this.id, claim).subscribe({
-      next: () => this.router.navigate(['/claims', this.id]),
-      error: () => this.router.navigate(['/claims', this.id]),
-    });
+    this.isSubmitting = true;
+    this.submitError = '';
+
+    this.claimService
+      .update(this.id, { ...claim, id: this.id })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => this.router.navigate(['/claims', this.id]),
+        error: (error: unknown) => {
+          this.isSubmitting = false;
+          this.submitError = getHttpErrorMessage(error, 'Không thể cập nhật hồ sơ. Vui lòng thử lại.');
+        },
+      });
   }
 
   onCancel(): void {
@@ -62,10 +91,13 @@ export class ClaimEditComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
-      if (confirmed) {
-        this.router.navigate(['/claims', this.id]);
-      }
-    });
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed: boolean | undefined) => {
+        if (confirmed) {
+          this.router.navigate(['/claims', this.id]);
+        }
+      });
   }
 }

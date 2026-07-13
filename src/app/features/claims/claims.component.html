@@ -14,14 +14,14 @@
     <mat-select [ngModel]="trangThaiHoSo()" (ngModelChange)="onTrangThaiHoSoChange($event)">
       <mat-option [value]="null">Tất cả</mat-option>
       @for (status of trangThaiOptions; track status) {
-        <mat-option [value]="status">{{ trangThaiLabel[status] }}</mat-option>
+        <mat-option [value]="status">{{ getTrangThaiLabel(status) }}</mat-option>
       }
     </mat-select>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="filter-field">
     <mat-label>Loại hồ sơ</mat-label>
-    <mat-select [ngModel]="type()" (ngModelChange)="onTypeChange($event)">
+    <mat-select [ngModel]="loaiHoSo()" (ngModelChange)="onLoaiHoSoChange($event)">
       <mat-option [value]="null">Tất cả</mat-option>
       @for (t of claimTypes; track t) {
         <mat-option [value]="t">{{ t }}</mat-option>
@@ -30,14 +30,16 @@
   </mat-form-field>
 </div>
 
-@if (loading()) {
+@if (loading() && claims().length === 0) {
   <app-loading></app-loading>
 } @else if (error()) {
-  <p class="error-state">Unable to load claims.</p>
+  <p class="error-state">Không thể tải danh sách hồ sơ.</p>
 } @else if (claims().length === 0) {
-  <app-empty-state message="No claims available."></app-empty-state>
+  <app-empty-state
+    [message]="hasActiveFilters() ? 'Không tìm thấy hồ sơ phù hợp.' : 'Chưa có hồ sơ nào.'"
+  ></app-empty-state>
 } @else {
-  <div class="table-wrapper">
+  <div class="table-wrapper" [class.is-refreshing]="loading()">
     <table class="claims-table">
       <thead>
         <tr>
@@ -60,11 +62,11 @@
             <td>{{ claim.tenKhachHang }}</td>
             <td>{{ claim.soHopDong }}</td>
             <td>{{ claim.loaiHoSo }}</td>
-            <td><app-status-badge [status]="trangThaiLabel[claim.trangThaiHoSo]"></app-status-badge></td>
-            <td><app-status-badge [status]="tinhTrangDuyetLabel[claim.tinhTrangDuyet]"></app-status-badge></td>
+            <td><app-status-badge [status]="getTrangThaiLabel(claim.trangThaiHoSo)"></app-status-badge></td>
+            <td><app-status-badge [status]="getTinhTrangDuyetLabel(claim.tinhTrangDuyet)"></app-status-badge></td>
             <td>{{ claim.soTienYeuCau }}</td>
-            <td>{{ claim.ngayNhanHoSo}}</td>
-            <td>{{ claim.ngayDuyet}}</td>
+            <td>{{ claim.ngayNhanHoSo }}</td>
+            <td>{{ claim.ngayDuyet ?? '—' }}</td>
             <td>
               <a mat-stroked-button [routerLink]="['/', 'claims', claim.id]">Xem chi tiết</a>
             </td>

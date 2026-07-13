@@ -67,7 +67,7 @@ describe('ClaimService', () => {
     expect(result.total).toBe(2);
   });
 
-  it('should pass filter params to the claims API', async () => {
+  it('should pass keyword without filter params to the claims API', async () => {
     const resultPromise = firstValueFrom(
       service.getClaimsList({
         keyword: 'cuong',
@@ -80,8 +80,30 @@ describe('ClaimService', () => {
 
     const request = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/claims`);
     expect(request.request.params.get('keyword')).toBe('cuong');
-    expect(request.request.params.get('trangThaiHoSo')).toBe('DANG_XU_LY');
-    expect(request.request.params.get('loaiHoSo')).toBe('TTTT');
+    expect(request.request.params.get('trangThaiHoSo.equals')).toBeNull();
+    expect(request.request.params.get('loaiHoSo.equals')).toBeNull();
+    request.flush([mockClaims[0]], { headers: { 'X-Total-Count': '1' } });
+
+    const result = await resultPromise;
+
+    expect(result.items).toEqual([mockClaims[0]]);
+    expect(result.total).toBe(1);
+  });
+
+  it('should pass JHipster filter params when keyword is absent', async () => {
+    const resultPromise = firstValueFrom(
+      service.getClaimsList({
+        trangThaiHoSo: 'DANG_XU_LY',
+        loaiHoSo: 'TTTT',
+        pageIndex: 0,
+        pageSize: 10,
+      }),
+    );
+
+    const request = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/claims`);
+    expect(request.request.params.get('trangThaiHoSo.equals')).toBe('DANG_XU_LY');
+    expect(request.request.params.get('loaiHoSo.equals')).toBe('TTTT');
+    expect(request.request.params.get('keyword')).toBeNull();
     request.flush([mockClaims[0]], { headers: { 'X-Total-Count': '1' } });
 
     const result = await resultPromise;

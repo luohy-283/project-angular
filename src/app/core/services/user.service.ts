@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { mapJHipsterUserToAppUser } from '../adapters/user.adapter';
 import { AppUser } from '../models/app-user.model';
 
 interface AdminUserDto {
@@ -42,20 +43,9 @@ export class UserService {
       })
       .pipe(
         map((response) => ({
-          items: (response.body ?? []).map((user) => this.mapToAppUser(user)),
+          items: (response.body ?? []).map(mapJHipsterUserToAppUser),
           total: Number(response.headers.get('X-Total-Count') ?? (response.body?.length ?? 0)),
         })),
       );
-  }
-
-  private mapToAppUser(user: AdminUserDto): AppUser {
-    const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.login;
-
-    return {
-      id: user.id,
-      fullName,
-      email: user.email ?? '',
-      authorities: user.authorities ?? [],
-    };
   }
 }

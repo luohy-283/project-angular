@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export type UserRole = 'ADMIN' | 'USER';
@@ -25,6 +25,26 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly tokenKey = 'access_token';
   private readonly userKey = 'current_user';
+  private readonly currentAccountSubject = new BehaviorSubject<Account | null>(null);
+
+  readonly currentAccount$ = this.currentAccountSubject.asObservable();
+
+  constructor() {
+    if (this.getToken()) {
+      this.getAccount()
+        .pipe(
+          tap((account) => {
+            this.currentAccountSubject.next(account);
+            this.persistCurrentUser(this.mapAccountToAuthUser(account));
+          }),
+          catchError(() => {
+            this.clearAuthState();
+            return of(null);
+          }),
+        )
+        .subscribe();
+    }
+  }
 
   login(username: string, password: string): Observable<boolean> {
     return this.http
@@ -40,10 +60,11 @@ export class AuthService {
           }
         }),
         switchMap(() => this.getAccount()),
-        map((account) => {
+        tap((account) => {
+          this.currentAccountSubject.next(account);
           this.persistCurrentUser(this.mapAccountToAuthUser(account));
-          return true;
         }),
+        map(() => true),
         catchError(() => {
           this.clearAuthState();
           return of(false);
@@ -110,6 +131,8 @@ export class AuthService {
   }
 
   private clearAuthState(): void {
+    this.currentAccountSubject.next(null);
+
     if (typeof window === 'undefined') {
       return;
     }

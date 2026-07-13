@@ -1,4 +1,5 @@
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,6 +18,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loginForm = new FormGroup({
     username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -36,23 +38,26 @@ export class LoginComponent {
     this.isSubmitting = true;
     this.authError = '';
 
-    this.authService.login(username, password).subscribe({
-      next: (isAuthenticated) => {
-        this.isSubmitting = false;
+    this.authService
+      .login(username, password)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (isAuthenticated) => {
+          this.isSubmitting = false;
 
-        if (!isAuthenticated) {
+          if (!isAuthenticated) {
+            this.authError = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+            this.loginForm.markAllAsTouched();
+            return;
+          }
+
+          this.router.navigate(['/dashboard']);
+        },
+        error: () => {
+          this.isSubmitting = false;
           this.authError = 'Tên đăng nhập hoặc mật khẩu không đúng.';
           this.loginForm.markAllAsTouched();
-          return;
-        }
-
-        this.router.navigate(['/dashboard']);
-      },
-      error: () => {
-        this.isSubmitting = false;
-        this.authError = 'Tên đăng nhập hoặc mật khẩu không đúng.';
-        this.loginForm.markAllAsTouched();
-      },
-    });
+        },
+      });
   }
 }

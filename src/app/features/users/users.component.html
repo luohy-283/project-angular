@@ -1,19 +1,19 @@
-<app-page-title title="Users"></app-page-title>
+<app-page-title title="Người dùng"></app-page-title>
 
 @if (isLoading) {
   <app-loading></app-loading>
 } @else if (errorMessage) {
   <div class="error-state" role="alert">{{ errorMessage }}</div>
 } @else if (users.length === 0) {
-  <app-empty-state message="No users available."></app-empty-state>
+  <app-empty-state message="Chưa có người dùng nào."></app-empty-state>
 } @else {
   <div class="table-wrapper">
     <table class="users-table">
       <thead>
         <tr>
-          <th>Full Name</th>
+          <th>Họ tên</th>
           <th>Email</th>
-          <th>Role</th>
+          <th>Vai trò</th>
         </tr>
       </thead>
       <tbody>
@@ -22,8 +22,8 @@
             <td>{{ user.fullName }}</td>
             <td>{{ user.email }}</td>
             <td>
-              <span class="role-badge" [class.admin]="user.authorities[0] === 'ROLE_ADMIN'">
-                {{ user.authorities[0].replace('ROLE_', '') }}
+              <span class="role-badge" [class.admin]="user.role === 'ADMIN'">
+                {{ user.role }}
               </span>
             </td>
           </tr>

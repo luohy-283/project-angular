@@ -45,6 +45,11 @@
   margin-bottom: 0.25rem;
 }
 
+.error-state {
+  color: #b91c1c;
+  margin-bottom: 1rem;
+}
+
 @media (max-width: 768px) {
   .summary-row,
   .detail-grid {

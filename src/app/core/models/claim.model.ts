@@ -10,7 +10,7 @@ export interface Claim {
   trangThaiHoSo: TrangThaiHoSo;
   tinhTrangDuyet: TinhTrangDuyet;
   soTienYeuCau: number;
-  soTienDuyet: number;
+  soTienDuyet?: number | null;
   ngayNhanHoSo: string;
   ngayDuyet?: string | null;
 }

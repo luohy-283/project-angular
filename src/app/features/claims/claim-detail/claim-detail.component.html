@@ -2,9 +2,15 @@
 
 @if (loading) {
   <app-loading></app-loading>
+} @else if (loadError) {
+  <p class="error-state" role="alert">Không thể tải chi tiết hồ sơ.</p>
 } @else if (!claim) {
   <app-empty-state message="Không tìm thấy hồ sơ."></app-empty-state>
 } @else {
+  @if (actionError) {
+    <p class="error-state" role="alert">{{ actionError }}</p>
+  }
+
   <div class="detail-card">
     <div class="actions">
       <a mat-stroked-button routerLink="/claims">Quay lại danh sách</a>
@@ -19,11 +25,11 @@
       </div>
       <div>
         <span class="label">Trạng thái</span>
-        <app-status-badge [status]="trangThaiLabel[claim.trangThaiHoSo]"></app-status-badge>
+        <app-status-badge [status]="getTrangThaiLabel(claim.trangThaiHoSo)"></app-status-badge>
       </div>
       <div>
         <span class="label">Tình trạng duyệt</span>
-        <app-status-badge [status]="tinhTrangDuyetLabel[claim.tinhTrangDuyet]"></app-status-badge>
+        <app-status-badge [status]="getTinhTrangDuyetLabel(claim.tinhTrangDuyet)"></app-status-badge>
       </div>
     </div>
 

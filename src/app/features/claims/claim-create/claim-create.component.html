@@ -1,2 +1,7 @@
 <app-page-title title="Tạo hồ sơ bồi thường"></app-page-title>
+
+@if (submitError) {
+  <p class="error-state" role="alert">{{ submitError }}</p>
+}
+
 <app-claim-form (formSubmit)="onSubmit($event)" (formCancel)="onCancel()"></app-claim-form>

@@ -2,8 +2,14 @@
 
 @if (loading) {
   <app-loading></app-loading>
+} @else if (loadError) {
+  <p class="error-state" role="alert">Không thể tải hồ sơ để chỉnh sửa.</p>
 } @else if (!initialValue) {
   <app-empty-state message="Không tìm thấy hồ sơ để chỉnh sửa."></app-empty-state>
 } @else {
+  @if (submitError) {
+    <p class="error-state" role="alert">{{ submitError }}</p>
+  }
+
   <app-claim-form [initialValue]="initialValue" (formSubmit)="onSubmit($event)" (formCancel)="onCancel()"></app-claim-form>
 }

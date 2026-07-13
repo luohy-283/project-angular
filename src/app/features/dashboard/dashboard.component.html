@@ -3,7 +3,7 @@
 @if (loading) {
   <app-loading></app-loading>
 } @else if (error) {
-  <p class="error-state">Unable to load dashboard.</p>
+  <p class="error-state">Không thể tải dashboard.</p>
 } @else if (summary) {
   <div class="dashboard-grid">
     <mat-card>
@@ -35,5 +35,5 @@
     </mat-card>
   </div>
 } @else {
-  <app-empty-state message="No dashboard data available."></app-empty-state>
+  <app-empty-state message="Không có dữ liệu dashboard."></app-empty-state>
 }

@@ -1,22 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Claim } from '../../../core/models/claim.model';
-import { ClaimService } from '../../../core/services/claim.service';
+import { catchError, finalize, of, switchMap } from 'rxjs';
+import { ClaimPayload, ClaimService } from '../../../core/services/claim.service';
+import { getHttpErrorMessage } from '../../../core/utils/http-error.util';
+import { getTinhTrangDuyetLabel, getTrangThaiLabel } from '../../../core/utils/claim-label.util';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { PageTitleComponent } from '../../../shared/components/page-title/page-title.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
-import { TINH_TRANG_DUYET_LABEL, TRANG_THAI_LABEL } from '../../../shared/constants/claim-status.const';
-
-type ClaimDetailValue = Claim & {
-  maCskcb?: string;
-  tenCskcb?: string;
-  phuongThucNhanHs?: string;
-};
 
 @Component({
   selector: 'app-claim-detail',
@@ -27,20 +23,49 @@ type ClaimDetailValue = Claim & {
 })
 export class ClaimDetailComponent implements OnInit {
   id = '';
-  claim: ClaimDetailValue | null = null;
+  claim: ClaimPayload | null = null;
   loading = false;
+  loadError = false;
+  actionError = '';
 
-  readonly trangThaiLabel = TRANG_THAI_LABEL;
-  readonly tinhTrangDuyetLabel = TINH_TRANG_DUYET_LABEL;
+  readonly getTrangThaiLabel = getTrangThaiLabel;
+  readonly getTinhTrangDuyetLabel = getTinhTrangDuyetLabel;
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly claimService = inject(ClaimService);
   private readonly dialog = inject(MatDialog);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.paramMap.get('id') ?? '';
-    this.loadClaim();
+    this.route.paramMap
+      .pipe(
+        switchMap((params) => {
+          this.id = params.get('id') ?? '';
+          this.claim = null;
+          this.loadError = false;
+          this.actionError = '';
+
+          if (!this.id) {
+            return of(null);
+          }
+
+          this.loading = true;
+          return this.claimService.getById(this.id).pipe(
+            catchError(() => {
+              this.loadError = true;
+              return of(null);
+            }),
+            finalize(() => {
+              this.loading = false;
+            }),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((claim) => {
+        this.claim = claim;
+      });
   }
 
   onDelete(): void {
@@ -55,30 +80,24 @@ export class ClaimDetailComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((confirmed: boolean | undefined) => {
-      if (confirmed) {
-        this.claimService.delete(this.id).subscribe({
-          next: () => this.router.navigate(['/claims']),
-          error: () => this.router.navigate(['/claims']),
-        });
-      }
-    });
-  }
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((confirmed: boolean | undefined) => {
+        if (!confirmed) {
+          return;
+        }
 
-  private loadClaim(): void {
-    if (!this.id) {
-      return;
-    }
-
-    this.loading = true;
-    this.claimService.getById(this.id).subscribe({
-      next: (claim) => {
-        this.claim = (claim as ClaimDetailValue | null) ?? null;
-        this.loading = false;
-      },
-      error: () => {
-        this.loading = false;
-      },
-    });
+        this.actionError = '';
+        this.claimService
+          .delete(this.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => this.router.navigate(['/claims']),
+            error: (error: unknown) => {
+              this.actionError = getHttpErrorMessage(error, 'Không thể xóa hồ sơ. Vui lòng thử lại.');
+            },
+          });
+      });
   }
 }

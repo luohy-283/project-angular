@@ -32,14 +32,14 @@ export class ClaimService {
     const keyword = params.keyword?.trim();
     if (keyword) {
       httpParams = httpParams.set('keyword', keyword);
-    }
+    } else {
+      if (params.trangThaiHoSo) {
+        httpParams = httpParams.set('trangThaiHoSo.equals', params.trangThaiHoSo);
+      }
 
-    if (params.trangThaiHoSo) {
-      httpParams = httpParams.set('trangThaiHoSo', params.trangThaiHoSo);
-    }
-
-    if (params.loaiHoSo) {
-      httpParams = httpParams.set('loaiHoSo', params.loaiHoSo);
+      if (params.loaiHoSo) {
+        httpParams = httpParams.set('loaiHoSo.equals', params.loaiHoSo);
+      }
     }
 
     if (params.sort) {
@@ -68,7 +68,7 @@ export class ClaimService {
   }
 
   update(id: string, claim: Partial<ClaimPayload>): Observable<ClaimPayload> {
-    return this.http.put<ClaimPayload>(`${this.claimsUrl}/${id}`, claim);
+    return this.http.put<ClaimPayload>(`${this.claimsUrl}/${id}`, { ...claim, id });
   }
 
   delete(id: string): Observable<void> {

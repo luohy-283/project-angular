@@ -1,8 +1,8 @@
 <mat-toolbar color="primary">
   <span>Claim Management</span>
   <span class="spacer"></span>
-  @if (currentUser) {
-    <span>{{ currentUser.username }} ({{ currentUser.role }})</span>
+  @if (currentAccount(); as account) {
+    <span>{{ getDisplayName(account) }} ({{ getRole(account) }})</span>
     <button mat-button (click)="logout()">Logout</button>
   }
 </mat-toolbar>
