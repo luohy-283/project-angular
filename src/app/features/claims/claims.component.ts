@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import {
@@ -61,11 +61,13 @@ interface ClaimsQueryState {
 export class ClaimsComponent implements OnInit {
   private readonly claimService = inject(ClaimService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly keyword = signal('');
   readonly trangThaiHoSo = signal<TrangThaiHoSo | null>(null);
   readonly loaiHoSo = signal<Claim['loaiHoSo'] | null>(null);
-  readonly pageState = signal({ pageIndex: 0, pageSize: 10 });
+  readonly pageIndex = signal(0);
+  readonly pageSize = signal(10);
   readonly loading = signal(false);
   readonly claims = signal<Claim[]>([]);
   readonly total = signal(0);
@@ -74,7 +76,8 @@ export class ClaimsComponent implements OnInit {
   private readonly keyword$ = toObservable(this.keyword);
   private readonly trangThaiHoSo$ = toObservable(this.trangThaiHoSo);
   private readonly loaiHoSo$ = toObservable(this.loaiHoSo);
-  private readonly pageState$ = toObservable(this.pageState);
+  private readonly pageIndex$ = toObservable(this.pageIndex);
+  private readonly pageSize$ = toObservable(this.pageSize);
 
   readonly trangThaiOptions = TRANG_THAI_OPTIONS as TrangThaiHoSo[];
   readonly getTrangThaiLabel = getTrangThaiLabel;
@@ -90,7 +93,7 @@ export class ClaimsComponent implements OnInit {
         debounceTime(300),
         distinctUntilChanged(),
         tap(() => {
-          this.pageState.update((state) => ({ ...state, pageIndex: 0 }));
+          this.pageIndex.set(0);
         }),
       ),
     );
@@ -99,17 +102,25 @@ export class ClaimsComponent implements OnInit {
       keyword: keywordDebounced$,
       trangThaiHoSo: this.trangThaiHoSo$,
       loaiHoSo: this.loaiHoSo$,
-      pageState: this.pageState$,
+      pageIndex: this.pageIndex$,
+      pageSize: this.pageSize$,
     })
       .pipe(
         map((sources) => ({
           keyword: sources.keyword,
           trangThaiHoSo: sources.trangThaiHoSo,
           loaiHoSo: sources.loaiHoSo,
-          pageIndex: sources.pageState.pageIndex,
-          pageSize: sources.pageState.pageSize,
+          pageIndex: sources.pageIndex,
+          pageSize: sources.pageSize,
         })),
-        distinctUntilChanged((previous, current) => JSON.stringify(previous) === JSON.stringify(current)),
+        distinctUntilChanged(
+          (previous, current) =>
+            previous.keyword === current.keyword &&
+            previous.trangThaiHoSo === current.trangThaiHoSo &&
+            previous.loaiHoSo === current.loaiHoSo &&
+            previous.pageIndex === current.pageIndex &&
+            previous.pageSize === current.pageSize,
+        ),
         switchMap((query) => this.loadClaimsList(query)),
         takeUntilDestroyed(this.destroyRef),
       )
@@ -122,28 +133,26 @@ export class ClaimsComponent implements OnInit {
 
   onTrangThaiHoSoChange(value: TrangThaiHoSo | null): void {
     this.trangThaiHoSo.set(value);
-    this.pageState.update((state) => ({ ...state, pageIndex: 0 }));
+    this.pageIndex.set(0);
   }
 
   onLoaiHoSoChange(value: Claim['loaiHoSo'] | null): void {
     this.loaiHoSo.set(value);
-    this.pageState.update((state) => ({ ...state, pageIndex: 0 }));
+    this.pageIndex.set(0);
   }
 
   onPageChange(event: { pageIndex: number; pageSize: number }): void {
-    this.pageState.set(event);
+    this.pageIndex.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.cdr.detectChanges();
   }
 
   hasActiveFilters(): boolean {
     return Boolean(this.keyword().trim() || this.trangThaiHoSo() || this.loaiHoSo());
   }
 
-  pageIndex(): number {
-    return this.pageState().pageIndex;
-  }
-
-  pageSize(): number {
-    return this.pageState().pageSize;
+  getRowStt(rowIndex: number): number {
+    return this.pageIndex() * this.pageSize() + rowIndex + 1;
   }
 
   private loadClaimsList(query: ClaimsQueryState) {

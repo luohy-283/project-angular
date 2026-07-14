@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, of, switchMap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Claim, ClaimListResult, ClaimQueryParams } from '../models/claim.model';
+import { getPaginationTotal } from '../utils/pagination-header.util';
 
 export type ClaimPayload = Omit<Claim, 'id'> & {
   id: string;
@@ -25,22 +26,9 @@ export class ClaimService {
     const safePageIndex = Math.max(0, Math.floor(params.pageIndex));
     const safePageSize = Math.max(1, Math.floor(params.pageSize));
 
-    let httpParams = new HttpParams()
+    let httpParams = this.buildFilterParams(params)
       .set('page', String(safePageIndex))
       .set('size', String(safePageSize));
-
-    const keyword = params.keyword?.trim();
-    if (keyword) {
-      httpParams = httpParams.set('keyword', keyword);
-    } else {
-      if (params.trangThaiHoSo) {
-        httpParams = httpParams.set('trangThaiHoSo.equals', params.trangThaiHoSo);
-      }
-
-      if (params.loaiHoSo) {
-        httpParams = httpParams.set('loaiHoSo.equals', params.loaiHoSo);
-      }
-    }
 
     if (params.sort) {
       httpParams = httpParams.set('sort', params.sort);
@@ -52,10 +40,21 @@ export class ClaimService {
         observe: 'response',
       })
       .pipe(
-        map((response) => ({
-          items: response.body ?? [],
-          total: Number(response.headers.get('X-Total-Count') ?? (response.body?.length ?? 0)),
-        })),
+        switchMap((response) => {
+          const items = response.body ?? [];
+          const totalFromHeader = getPaginationTotal(response.headers);
+
+          if (totalFromHeader !== null) {
+            return of({ items, total: totalFromHeader });
+          }
+
+          return this.getClaimsCount(params).pipe(
+            map((total) => ({
+              items,
+              total,
+            })),
+          );
+        }),
       );
   }
 
@@ -73,5 +72,32 @@ export class ClaimService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.claimsUrl}/${id}`);
+  }
+
+  private getClaimsCount(params: ClaimQueryParams): Observable<number> {
+    return this.http
+      .get<number>(`${this.claimsUrl}/count`, {
+        params: this.buildFilterParams(params),
+      })
+      .pipe(map((count) => Number(count)));
+  }
+
+  private buildFilterParams(params: ClaimQueryParams): HttpParams {
+    let httpParams = new HttpParams();
+    const keyword = params.keyword?.trim();
+
+    if (keyword) {
+      httpParams = httpParams.set('keyword', keyword);
+    } else {
+      if (params.trangThaiHoSo) {
+        httpParams = httpParams.set('trangThaiHoSo.equals', params.trangThaiHoSo);
+      }
+
+      if (params.loaiHoSo) {
+        httpParams = httpParams.set('loaiHoSo.equals', params.loaiHoSo);
+      }
+    }
+
+    return httpParams;
   }
 }

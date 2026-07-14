@@ -43,6 +43,7 @@
     <table class="claims-table">
       <thead>
         <tr>
+          <th class="col-stt">STT</th>
           <th>Số hồ sơ</th>
           <th>Khách hàng</th>
           <th>Số hợp đồng</th>
@@ -56,8 +57,9 @@
         </tr>
       </thead>
       <tbody>
-        @for (claim of claims(); track claim.id) {
+        @for (claim of claims(); track claim.id; let i = $index) {
           <tr>
+            <td class="col-stt">{{ getRowStt(i) }}</td>
             <td>{{ claim.soHoSo }}</td>
             <td>{{ claim.tenKhachHang }}</td>
             <td>{{ claim.soHopDong }}</td>
@@ -81,5 +83,5 @@
     [pageIndex]="pageIndex()"
     [pageSize]="pageSize()"
     (pageChange)="onPageChange($event)"
-  ></app-pagination>
+  />
 }

@@ -112,6 +112,21 @@ describe('ClaimService', () => {
     expect(result.total).toBe(1);
   });
 
+  it('should fall back to count API when X-Total-Count header is missing', async () => {
+    const resultPromise = firstValueFrom(service.getClaimsList({ pageIndex: 0, pageSize: 10 }));
+
+    const listRequest = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/claims`);
+    listRequest.flush(mockClaims);
+
+    const countRequest = httpMock.expectOne((req) => req.url === `${environment.apiUrl}/claims/count`);
+    countRequest.flush(30);
+
+    const result = await resultPromise;
+
+    expect(result.items).toEqual(mockClaims);
+    expect(result.total).toBe(30);
+  });
+
   it('should return an error when claims data cannot be loaded', async () => {
     const resultPromise = firstValueFrom(service.getClaimsList({ pageIndex: 0, pageSize: 10 }));
 
